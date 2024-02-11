@@ -1,7 +1,6 @@
 import os
 import re
 
-title = "Koi Farm 2 blog | "
 months = [
     "January",
     "February",
@@ -46,13 +45,15 @@ def print_posts():
 
             table = {
                 "$index$": post_index,
-                "$title$": title + post_dates[index],
+                "$title$": "Koi Farm 2 blog | " + post_dates[index],
                 "$date$": post_dates[index],
                 "$post$": open("posts/" + post + "/content.html").read(),
-                "$previous$": "<a href=\"%s\"><span class=\"previous\"></span></a>" % (
-                    make_file(posts[index + 1], index + 1)) if index < len(posts) - 1 else "<span></span>",
-                "$next$": "<a href=\"%s\"><span class=\"next\"></span></a>" % (
-                    make_file(posts[index - 1], index - 1)) if index > 0 else "<span></span>",
+                "$previous$": "<span class=\"previous\"><a href=\"%s\">%s</a></span>" % (
+                    make_file(posts[index + 1], index + 1),
+                    "<< previous") if index < len(posts) - 1 else "",
+                "$next$": "<span class=\"next\"><a href=\"%s\">%s</a></span>" % (
+                    make_file(posts[index - 1], index - 1),
+                    "next >>") if index > 0 else "",
             }
             pattern = re.compile("|".join(map(re.escape, table.keys())))
 

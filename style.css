@@ -19,7 +19,7 @@ body {
 }
 
 #index {
-    padding: 8px;
+    padding: 12px;
     white-space: nowrap;
     font-style: italic;
 }
@@ -36,22 +36,9 @@ body {
 
 #post {
     background-color: #e8e3d2;
-    padding: 8px;
+    padding: 12px;
 }
 
-#footer {
-    display: flex;
-    justify-content: space-between;
-}
-
-#footer a {
-    font-size: 12pt;
-}
-
-#footer .previous::before {
-    content: "<< previous"
-}
-
-#footer .next::before {
-    content: "next >>";
+#footer .next {
+    float: right;
 }
