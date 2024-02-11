@@ -4,21 +4,31 @@ body {
 }
 
 #wrapper {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#header {
+    text-align: center;
+}
+
+#content {
     display: flex;
     justify-content: center;
 }
 
 #index {
-
+    padding: 8px;
 }
 
 #blog {
     flex-grow: 1;
-    max-width: 800px;
 }
 
-#content {
+#post {
     background-color: #e8e3d2;
+    padding: 8px;
 }
 
 #footer {

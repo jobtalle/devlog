@@ -25,16 +25,25 @@ def make_file(post, index):
 
 def print_posts():
     posts = sorted(os.listdir("posts/"), reverse = True)
+    post_index = ""
+    post_dates = []
+
+    for index, post in enumerate(posts):
+        date = regex_title.search(post)
+        post_dates.append(months[int(date[2]) - 1] + " " + date[1])
+        post_index += "<li><a href=\"%s\">%s</a></li>" % (
+            make_file(post, index),
+            post_dates[index])
 
     for index, post in enumerate(posts):
         with open(make_file(post, index), "w") as file:
-            date = regex_title.search(post)
-            title_date = months[int(date[2]) - 1] + " " + date[1]
+            title_date = post_dates[index]
 
             table = {
+                "$index$": post_index,
                 "$title$": title + title_date,
                 "$date$": title_date,
-                "$content$": open("posts/" + post + "/content.html").read(),
+                "$post$": open("posts/" + post + "/content.html").read(),
                 "$previous$": "<a href=\"%s\"><span class=\"previous\"></span></a>" % (
                     make_file(posts[index + 1], index + 1)) if index < len(posts) - 1 else "<span></span>",
                 "$next$": "<a href=\"%s\"><span class=\"next\"></span></a>" % (
