@@ -15,13 +15,14 @@ months = [
     "October",
     "November",
     "December"]
-
 regex_title = re.compile("(\d*)_0?(\d*)")
-
 template = open("template/template.html", "r").read()
 
 def make_file(post, index):
     return "index.html" if index == 0 else post + ".html"
+
+def compress_html(string):
+    return re.sub("|".join(map(re.escape, ["    ", "\n"])), "", string)
 
 def print_posts():
     posts = sorted(os.listdir("posts/"), reverse = True)
@@ -54,7 +55,7 @@ def print_posts():
             def replace(match):
                 return table[match.group(0)]
 
-            file.write(pattern.sub(replace, template))
+            file.write(compress_html(pattern.sub(replace, template)))
             file.close()
 
 def clear_pages():
