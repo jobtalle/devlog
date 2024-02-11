@@ -20,6 +20,14 @@ body {
 
 #index {
     padding: 8px;
+    white-space: nowrap;
+    font-style: italic;
+}
+
+#index ul {
+    list-style-type: none;
+    text-align: right;
+    margin: 0;
 }
 
 #blog {
