@@ -36,9 +36,9 @@ def print_posts():
                 "$date$": title_date,
                 "$content$": open("posts/" + post + "/content.html").read(),
                 "$previous$": "<a href=\"%s\"><span class=\"previous\"></span></a>" % (
-                    make_file(posts[index + 1], index + 1)) if index < len(posts) - 1 else "",
+                    make_file(posts[index + 1], index + 1)) if index < len(posts) - 1 else "<span></span>",
                 "$next$": "<a href=\"%s\"><span class=\"next\"></span></a>" % (
-                    make_file(posts[index - 1], index - 1)) if index > 0 else "",
+                    make_file(posts[index - 1], index - 1)) if index > 0 else "<span></span>",
             }
             pattern = re.compile("|".join(map(re.escape, table.keys())))
 

@@ -3,6 +3,20 @@ body {
     font-family: sans-serif;
 }
 
+#wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+#index {
+
+}
+
+#blog {
+    flex-grow: 1;
+    max-width: 800px;
+}
+
 #content {
     background-color: #e8e3d2;
 }
