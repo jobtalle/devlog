@@ -19,34 +19,34 @@ months = [
 regex_title = re.compile("(\d*)_0?(\d*)")
 
 template = open("template/template.html", "r").read()
-has_index = False
 
-def make_title(post):
-    date = regex_title.search(post)
-
-    return title + months[int(date[2]) - 1] + " " + date[1]
-
-def print_post(post):
-    global has_index
-
-    with open("index.html" if not has_index else post + ".html", "w") as file:
-        table = {
-            "$title$": make_title(post),
-            "$content$": open("posts/" + post + "/content.html").read()
-        }
-        pattern = re.compile("|".join(map(re.escape, table.keys())))
-
-        def replace(match):
-            return table[match.group(0)]
-
-        file.write(pattern.sub(replace, template))
-        file.close()
-
-    has_index = True
+def make_file(post, index):
+    return "index.html" if index == 0 else post + ".html"
 
 def print_posts():
-    for post in sorted(os.listdir("posts/"), reverse = True):
-        print_post(post)
+    posts = sorted(os.listdir("posts/"), reverse = True)
+
+    for index, post in enumerate(posts):
+        with open(make_file(post, index), "w") as file:
+            date = regex_title.search(post)
+            title_date = months[int(date[2]) - 1] + " " + date[1]
+
+            table = {
+                "$title$": title + title_date,
+                "$date$": title_date,
+                "$content$": open("posts/" + post + "/content.html").read(),
+                "$previous$": "<a href=\"%s\"><span class=\"previous\"></span></a>" % (
+                    make_file(posts[index + 1], index + 1)) if index < len(posts) - 1 else "",
+                "$next$": "<a href=\"%s\"><span class=\"next\"></span></a>" % (
+                    make_file(posts[index - 1], index - 1)) if index > 0 else "",
+            }
+            pattern = re.compile("|".join(map(re.escape, table.keys())))
+
+            def replace(match):
+                return table[match.group(0)]
+
+            file.write(pattern.sub(replace, template))
+            file.close()
 
 def clear_pages():
     for file in os.listdir("."):

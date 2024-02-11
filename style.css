@@ -1,3 +1,25 @@
+body {
+    background-color: #d6e0ea;
+    font-family: sans-serif;
+}
+
 #content {
     background-color: #e8e3d2;
+}
+
+#footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+#footer a {
+    font-size: 12pt;
+}
+
+#footer .previous::before {
+    content: "<< previous"
+}
+
+#footer .next::before {
+    content: "next >>";
 }
