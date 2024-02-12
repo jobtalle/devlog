@@ -37,6 +37,11 @@ body {
 #post {
     background-color: #efefef;
     padding: 12px;
+    display: inline-block;
+}
+
+#post figure {
+    float: right;
 }
 
 #post img {
