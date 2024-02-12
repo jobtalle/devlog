@@ -1,7 +1,11 @@
-<h2>Creating koi</h2>
-<ul>
-    <li>Placeholder models are created on a separate thread.</li>
-    <li>Ponds now have a collision field, which is used by koi to know where the nearest shore is, and how far they are away from it.</li>
-    <li>A skeletal animation system with GPU acceleration was made.</li>
-    <li>Pond models are rendered in 3D.</li>
-</ul>
+<h2>Moving to 3d</h2>
+<p>Since ponds can now be shaped, it was time to move to 3d and put koi in the ponds. Both pond models and koi models have to be created. Since all models are procedural and generating models can get pretty slow, I moved modelling code to a separate thread. The main thread receives the models when they are ready to prevent any freezes.</p>
+<p>Modelling ponds was pretty straightforward, any pond polygon models a shore that goes inwards towards the maximum pond depth, and any island polygon models a shore that goes from that depth to ground level again. The pond shores can be improved, but they will do for now.</p>
+<p>The koi models will end up being the most complicated models in the game. The placeholders in the video below are just for testing animations. I've implemented a skeletal animation system for koi that takes any number of bones (some koi may have more or less fins, short koi need fewer bones), and the skeletons scale with age.</p>
+<figure>
+    <video controls>
+        <source src="first_models.mp4" type="video/mp4">
+    </video>
+    <figcaption>The first animated 3d models</figcaption>
+</figure>
+<p>Finally, the koi need to know how to navigate the pond they're in. To do this, I've implemented a signed distance field for every pond, which stores the distance and direction to the shore on a grid. Any islands inside a pond are taken into account, since they are also impassable. The koi in the video simply bounce off the walls of the pond for now. Since there is no lighting model yet, every triangle gets a random color, which helps me debug the shapes early.</p>

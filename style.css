@@ -43,6 +43,10 @@ body {
     max-width: 100%;
 }
 
+#post video {
+    max-width: 100%;
+}
+
 #footer .next {
     float: right;
 }
