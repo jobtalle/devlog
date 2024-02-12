@@ -4,7 +4,7 @@ body {
 }
 
 #wrapper {
-    max-width: 800px;
+    max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -37,6 +37,10 @@ body {
 #post {
     background-color: #e8e3d2;
     padding: 12px;
+}
+
+#post img {
+    max-width: 100%;
 }
 
 #footer .next {

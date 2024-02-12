@@ -47,7 +47,7 @@ def print_posts():
                 "$index$": post_index,
                 "$title$": "Koi Farm 2 blog | " + post_dates[index],
                 "$date$": post_dates[index],
-                "$post$": open("posts/" + post + "/content.html").read(),
+                "$post$": open("posts/" + post + "/content.html").read().replace("src=\"", "src=\"posts\\%s\\" % post),
                 "$previous$": "<span class=\"previous\"><a href=\"%s\">%s</a></span>" % (
                     make_file(posts[index + 1], index + 1),
                     "<< previous") if index < len(posts) - 1 else "",
