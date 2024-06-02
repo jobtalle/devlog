@@ -39,7 +39,7 @@ def print_posts():
 
         rss_table = {
             "$title": post_dates[index],
-            "$link$": post_links[index],
+            "$link$": "https://devlog.koifarmgame.com/" + post + ".html",
             "$description$": "Koi Farm 2 devlog | " + post_dates[index]
         }
 
