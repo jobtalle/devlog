@@ -17,6 +17,8 @@ months = [
 regex_title = re.compile("(\d*)_0?(\d*)")
 template = open("template/template.html", "r").read()
 template_index = open("template/template_index.html", "r").read()
+template_rss = open("template/template_rss.xml", "r").read()
+template_rss_item = open("template/template_rss_item.xml", "r").read()
 
 def compress_html(string):
     return re.sub("|".join(map(re.escape, ["    ", "\n"])), "", string)
@@ -26,6 +28,7 @@ def print_posts():
     post_index = ""
     post_dates = []
     post_links = []
+    rss_items = []
 
     for index, post in enumerate(posts):
         date = regex_title.search(post)
@@ -33,6 +36,18 @@ def print_posts():
         post_links.append("<li><a href=\"%s\">%s</a></li>" % (
             post + ".html",
             post_dates[index]))
+
+        rss_table = {
+            "$title": post_dates[index],
+            "$link$": post_links[index],
+            "$description$": "Koi Farm 2 devlog | " + post_dates[index]
+        }
+
+        def replace(match):
+            return rss_table[match.group(0)]
+
+        rss_pattern = re.compile("|".join(map(re.escape, rss_table.keys())))
+        rss_items.append(rss_pattern.sub(replace, template_rss_item))
 
     for index, post in enumerate(posts):
         with open(post + ".html", "w") as file:
@@ -63,6 +78,10 @@ def print_posts():
 
     with open("index.html", "w") as file:
         file.write(compress_html(template_index.replace("$index$", posts[0] + ".html")))
+        file.close()
+
+    with open("rss.xml", "w") as file:
+        file.write(compress_html(template_rss.replace("$items$", "".join(rss_items))))
         file.close()
 
 def clear_pages():
