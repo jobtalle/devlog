@@ -1,6 +1,10 @@
+:root {
+    --color-dark: #2f2f2f;
+}
+
 body {
-    background-color: #e8e3d2;
-    color: #2f2f2f;
+    background-color: #e6e8d2;
+    color: var(--color-dark);
     font-family: sans-serif;
 }
 
@@ -11,7 +15,7 @@ body {
 }
 
 #header {
-    text-align: center;
+    text-align: right;
 }
 
 #content {
@@ -39,6 +43,22 @@ body {
     background-color: #efefef;
     padding: 12px;
     display: inline-block;
+    border: 1px solid var(--color-dark);
+}
+
+#post h2 {
+    margin: 0;
+    text-align: center;
+    width: 100%;
+}
+
+#post h3 {
+    text-align: center;
+    width: 100%;
+    font-size: 8pt;
+    margin-top: 0;
+    font-style: italic;
+    font-weight: normal;
 }
 
 #post figure {

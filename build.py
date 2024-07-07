@@ -23,6 +23,16 @@ template_rss_item = open("template/template_rss_item.xml", "r").read()
 def compress_html(string):
     return re.sub("|".join(map(re.escape, ["    ", "\n"])), "", string)
 
+def replace_multiple(string, table):
+    return re.compile("|".join(map(re.escape, table.keys()))).sub(lambda match: table[match.group(0)], string)
+
+def process_post(string, post, date):
+    return replace_multiple(string,
+        {
+            "src=\"": "src=\"posts\\%s\\" % post,
+            "</h2>": "</h2><h3>%s</h3>" % date
+        })
+
 def print_posts():
     posts = sorted(os.listdir("posts/"), reverse = True)
     post_index = ""
@@ -56,24 +66,18 @@ def print_posts():
             for link_index, link in enumerate(post_links):
                 post_index += link if index != link_index else "<li>%s</li>" % post_dates[link_index]
 
-            table = {
-                "$index$": post_index,
-                "$title$": "Koi Farm 2 blog | " + post_dates[index],
-                "$date$": post_dates[index],
-                "$post$": open("posts/" + post + "/content.html").read().replace("src=\"", "src=\"posts\\%s\\" % post),
-                "$previous$": "<span class=\"previous\"><a href=\"%s\">%s</a></span>" % (
-                    posts[index + 1] + ".html",
-                    "<< previous") if index < len(posts) - 1 else "",
-                "$next$": "<span class=\"next\"><a href=\"%s\">%s</a></span>" % (
-                    posts[index - 1] + ".html",
-                    "next >>") if index > 0 else "",
-            }
-            pattern = re.compile("|".join(map(re.escape, table.keys())))
-
-            def replace(match):
-                return table[match.group(0)]
-
-            file.write(compress_html(pattern.sub(replace, template)))
+            file.write(compress_html(replace_multiple(template,
+                {
+                    "$index$": post_index,
+                    "$title$": post_dates[index],
+                    "$post$": process_post(open("posts/" + post + "/content.html").read(), post, post_dates[index]),
+                    "$previous$": "<span class=\"previous\"><a href=\"%s\">%s</a></span>" % (
+                        posts[index + 1] + ".html",
+                        "<< previous") if index < len(posts) - 1 else "",
+                    "$next$": "<span class=\"next\"><a href=\"%s\">%s</a></span>" % (
+                        posts[index - 1] + ".html",
+                        "next >>") if index > 0 else "",
+                })))
             file.close()
 
     with open("index.html", "w") as file:
