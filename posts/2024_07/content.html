@@ -13,7 +13,7 @@
 <p>Patterns are "grown" in a rectangular space which is converted to a pattern texture. To improve performance and to prevent groups of pigments from being pushed out of the simulation, I've bounded the simulation within the range of the texture that was used. Due to the shape of koi models, between 50% and 80% of the texture is used to store pigments, and some unused space is left in the corners. This unused space may come in handy later though, since the koi still need eyes!</p>
 <p>The animation shows a pattern simulation to a koi that looks similar to one of the four siblings shown earlier. Pigments don't ever fall outside the koi, which means I can control the proportion of colored cells well.</p>
 <p>During the simulation, pigment cells are pushed against the borders. When a pigment spot touches the border, this can lead to a very clean spot border compared to the otherwise more organic looking shapes. To prevent this, I cull all pigment cells that touch the simulation border at the end of the simulation, which brings back some of the randomness I want to see in the spots.</p>
-<p>Different pigment can now also exist on different layers. In koi farm 1, every color existed on its own layer only, independent form other layers of spots.</p>
+<p>Different pigment can now also exist on different layers. In koi farm 1, every color existed on its own layer only, independent of other layers of spots.</p>
 <figure>
     <img src="layers.jpg" alt="Layers"/>
     <figcaption>Layers</figcaption>
