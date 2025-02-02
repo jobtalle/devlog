@@ -36,12 +36,14 @@ def process_post(string, post, date):
 def print_posts():
     posts = sorted(os.listdir("posts/"), reverse = True)
     post_index = ""
+    post_years = []
     post_dates = []
     post_links = []
     rss_items = []
 
     for index, post in enumerate(posts):
         date = regex_title.search(post)
+        post_years.append(int(date[1]))
         post_dates.append(months[int(date[2]) - 1] + " " + date[1])
         post_links.append("<li><a href=\"%s\">%s</a></li>" % (
             post + ".html",
@@ -64,6 +66,9 @@ def print_posts():
             post_index = ""
 
             for link_index, link in enumerate(post_links):
+                if link_index > 0 and post_years[link_index - 1] != post_years[link_index]:
+                    post_index += "<li><hr></li>"
+
                 post_index += link if index != link_index else "<li>%s</li>" % post_dates[link_index]
 
             file.write(compress_html(replace_multiple(template,
