@@ -10,7 +10,8 @@
     <li>The development build, which is optimized and should perform very similarly to the release build. It does however still contain all the development interfaces for testing.</li>
     <li>The release build, which is the build that will eventually be distributed to players. This does not contain development interfaces, and it's the most heavily optimized build.</li>
 </ol>
-<p>The new debug interface is not HTML based like the prototype. I did initially really love the HTML based debugging interface, they seemed very easy to set up and modify. Rewriting them in c++ using ImGui was a breeze though, and it's noticeably faster to write and iterate upon. It's using the "immediate mode" design pattern (hence the name), which doesn't need as much state and therefore potential bugs.</p>
+<p>The new debug interface is not HTML based like the prototype. I did initially really love the HTML based debugging interface, they seemed very easy to set up and modify. Rewriting them in c++ using ImGui was a breeze though, and it's noticeably faster to write and iterate upon. It's using the "immediate mode" design pattern (hence the name), which doesn't need as much state and therefore potential bugs. Another advantage is that this interface doesn't just run on PCs, but on consoles and phones as well, while web based interfaces aren't universal. This will help to debug console versions in the future.</p>
+<p>Another small improvement I've made to the engine is hot reloading shaders and pipelines. A lot of work is done on the GPU, and with this improvement I can write and test GPU code without restarting the game all the time.</p>
 <figure>
     <img src="pick.gif" alt="Picking koi">
     <figcaption>Koi tossing.</figcaption>
