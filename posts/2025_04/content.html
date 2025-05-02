@@ -3,10 +3,14 @@
     <img src="shore.png" alt="Shore tessellation">
     <figcaption>Shore tessellation</figcaption>
 </figure>
+<p>Render quality and performance are always tricky to balance. One of the best things you can do to be able to render things at high quality levels on all devices, is not do things that don't matter. This month, I've built the systems that take care of not doing things. The most important techniques to do less are <em>tessellation</em> and <em>culling</em>.</p>
+<p>Tessellation takes care of increasing the detail of shapes close to the camera, while reducing the number of triangles in the distance. This is especially useful when zooming out; frame rates would drop dramatically if the quality of all things remains the same. I've implemented two types of tessellation. The first is hardware tessellation, which is a feature (almost) all modern GPUs have. I've applied this first on the pond edges. Instead of modelling them with some sufficient level of detail, I don't model them at all anymore and instead just send the shape of the ponds to the GPU. The GPU then generates as many triangles are suitable for the distance of the shore edge to the camera. The image shows the same pond at two different distances. The close up has many triangles and a smooth shape, while the distant render just renders the contours without details that wouldn't show up at that distance. I'll use this technique for hills and the water surface as well.</p>
 <figure>
     <img src="koi.gif" alt="Koi tessellation">
     <figcaption>Koi tessellation</figcaption>
 </figure>
+<p>The koi (and many other objects) need to vary in detail as well, but hardware tessellation isn't super flexible. It will work for some types of simple surface, but not for complex shapes like koi, plants and other objects in the scene. Instead of using hardware tessellation there, I generate a number of variants with varying levels of detail. Every frame, just before rendering starts, the GPU decides which variant is appropriate. Distant koi and small fry will use a very low poly model, but koi will still look very smooth up close.</p>
+<p>Another thing that happens at the same time is <em>culling</em>. The GPU determines which things are entirely outside the camera view, and doesn't render them. Doing this on the GPU is much faster than doing it on the CPU, since it's very easy to cull many things in parallel, and the GPU is good at that. Still, visibility is determined for every object before every frame, so I'll have to do a rough visibility pass first. Sending literally every object in the scene through this process would be wasteful.</p>
 <!--Terrain improvements-->
 <!--Behavior updates-->
 <!--Water-->
