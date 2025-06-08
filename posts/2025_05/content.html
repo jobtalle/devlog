@@ -6,10 +6,6 @@
     <li>The grid should give a list of vegetation to render, and absolutely make sure invisible vegetation isn't rendered, since this is one of the slowest things to draw.</li>
     <li>The grid needs to prevent plants and objects from being placed too close to each other, and help to spatially distribute things in the world.</li>
 </ul>
-<figure>
-    <img src="culling.gif" alt="Culling">
-    <figcaption>Grid cell toggling</figcaption>
-</figure>
 <p>The first two things are both about culling invisible things, the third point is a bit more tricky. I want to assign objects in the world to grid cells, and ideally I want to use the spatial properties of these cells to keep objects from clipping in to each other. Most games use square grid cells, since they are computationally the easiest thing to work with. A disadvantage of grid cells is their degree of <em>isotropy</em>, which is the degree of directional independence; square cells can be called <em>anisotropic</em>, meaning they have very clear directional biases. The cells are laid out in horizontal and vertical lines. They have eight neighbors, but the distance to diagonal neighbors is different from the distance to horizontally and vertically aligned ones. This causes all sorts of trouble:</p>
 <ul>
     <li>Objects placed on square grid cells lie clearly on two axes. This is comparable to cornfields or planted forests, all plants are perfectly aligned, it looks unnatural.</li>
@@ -17,8 +13,8 @@
     <li>When you create a mesh for square grid cells, the squares are made from two triangles, and the diagonal points one way or the other. The resulting mesh has directional biases. These show up during rendering and mesh deformation (like water displacement and ground elevation).</li>
 </ul>
 <figure>
-    <img src="grid.png" alt="The grid">
-    <figcaption>The grid</figcaption>
+    <img src="culling.gif" alt="Culling">
+    <figcaption>Grid cell toggling</figcaption>
 </figure>
 <p>There are games that use square meshes, but hexagonal meshes are also used (for example by the more recent Civilization games). Hexagonal meshes tackle most of these problems: all neighbors are at the same distance from the cell center, directional bias is greatly reduced, and you can create a mesh consisting of six equal triangles per cell, each triangle has the same size. Since hexagonal tiles have six triangles, and since calculating with triangles is slightly faster than calculating with hexagons, I went for a triangular grid. The world is subdivided into equilateral triangles. If you squint at the image, you can imagine a hexagonal grid that fits precisely on top of it; the good properties of hexagonal grids are inherited, but the cells are triangular.</p>
 <figure>
