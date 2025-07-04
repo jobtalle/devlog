@@ -1,9 +1,9 @@
 <h2>Making waves</h2>
 <p>One of my goals is to make the environment feel as dynamic and alive as possible. In koi farm 1, I simulated all the waves in the scene instead of just looping a waves animation or using some shader trick to render waves; every wave in the game was at some point caused by a fish, a raindrop or the user, and waves bounce, combine and travel across the scene as time passes. For koi farm 2, I want that too, but better of course. There are a few extra things to consider this time:</p>
 <ul>
-    <li>While koi farm 1 had a very limited scene, environments can be big now. Simulating waves for all existing water wastes too many GPU cycles.</li>
+    <li>While koi farm 1 had a very limited scene, environments can be bigger now. Simulating waves for all existing water wastes too many GPU cycles.</li>
     <li>The waves need to be 3D this time.</li>
-    <li>Pond shapes are completely unpredictable because the players dig them out, the water simulation needs to work in any case.</li>
+    <li>Pond shapes are completely unpredictable because players design their own ponds, the water simulation needs to work in any case.</li>
     <li>Simulating refraction in 3D is not trivial unless you're raytracing.</li>
 </ul>
 <p>Many ingredients go into rendering believable water:</p>
@@ -19,17 +19,17 @@
     <figcaption>The wave simulation</figcaption>
 </figure>
 <p>The wave simulation uses the same algorithm koi farm 1 used. This works well enough to create and propagate waves, and reflecting those waves back from shores with arbitrary shapes. The simulation gives me an image which contains the wave altitude on every pixel. To keep things performant, the simulation only runs for water in a fixed size area centered around the camera. When the player changes perspective, the simulation moves with the camera to simulate water wherever required. The wave simulation also only updates waves where water actually exists. To do this, I render the scene altitude from a top-down perspective, and I use this heightmap as a depth buffer while rasterizing the next wave simulation image state.</p>
-<p>To render the wave shapes, <a href="2025_05.html">last week's</a> grid subdivision algorithm helps me out a lot by giving me a dynamically tessellated isotropic water mesh. The grid morphs into whatever shapes the waves take regardless of the wave direction. Other less well-formed grids wouldn't work as well because of their stronger directional bias.</p>
 <figure>
     <img src="distortion.gif" alt="Wave mesh distortion">
     <figcaption>Wave mesh distortion</figcaption>
 </figure>
-<p>The wave simulation algorithm gives me rather smooth waves which look similar to sine waves when viewed from the side. This is not how real waves look, and they don't feel right when rendered in 3D. The peaks of higher waves are somewhat sharp, while the spaces in between are smoother. Again, the isotropic water mesh comes in very handy: it's pretty resistant to self occlusion, so I can move its vertices in the direction of the derivative of the wave simulation texture without messing up the geometry. This creates precisely the desired effect. Waves are sharp at the crest and the troughs are wider and smooth.</p>
+<p>The wave simulation algorithm gives me rather smooth waves which look similar to sine waves when viewed from the side. This is not how real waves look, and they don't feel right when rendered in 3D. The peaks of higher waves are somewhat sharp, while the spaces in between are smoother. <a href="2025_05.html">Last month's isotropic water mesh</a> comes in very handy: it's pretty resistant to self occlusion and warping, so I can move its vertices in the direction of the derivative of the wave simulation texture without messing up the geometry. This creates precisely the desired effect. Waves are sharp at the crest and the troughs are wider and smooth.</p>
 <figure>
     <img src="refraction.jpg" alt="Ray-traced refraction">
     <figcaption>Ray-traced refraction</figcaption>
 </figure>
-<p>Rendering refraction turned out to be a major issue. When using raytracing techniques it's pretty trivial, but I can't rely on users running hardware with these capabilities, and the koi models will be way too complex to raytrace efficiently. I've tried <em>screen space refractions</em>, where I first rendered the underwater scene to an image, and then raytraced into that image from every water surface pixel to find out what pixel should be visible there. This was physically correct, but rather noisy because I've had to limit the raytracing resolution to keep frame rate within acceptable levels, and tracing colors behind koi on a pre-rendered image is impossible. This created many false positive traces where a koi pixel was hit, while in reality a pixel <em>behind</em> the koi had to be retrieved. It's impossible to distinguish different "layers" of colors in a single image. Eventually, I settled on faking refraction convincingly:</p>
+<p>Rendering refraction turned out to be a major issue. When using ray-tracing techniques it's pretty trivial, but I can't rely on users running hardware with these capabilities, and the koi models will be way too complex to ray-trace efficiently. I've tried <em>screen space refractions</em>, where I first rendered the underwater scene to an image, and then ray-traced into that image from every water surface pixel to find out what pixel should be visible there. The resulting distortion is physically correct, but the results weren't pixel perfect because I've had to limit the ray-tracing resolution to keep frame rate within acceptable levels, and tracing colors behind koi on a pre-rendered image is impossible. This created many false positive traces where a koi pixel was hit, while in reality a pixel <em>behind</em> the koi had to be retrieved. It's impossible to distinguish different "layers" of colors in a single image. The image on the right shows the result of this problem. some pixels get the right color, but whenever the refracted ray goes behind something, noisy artifacts show up instead of what you should have seen. The black and white koi in the top left is a great example: many rays hit behind the koi but return koi pixels instead, which extrudes the koi upwards.</p>
+<p>Eventually, I settled on faking refraction convincingly:</p>
 <figure>
     <video autoplay loop muted playsinline width="500px">
         <source src="waves.webm" type="video/webm">
@@ -41,3 +41,4 @@
     <li>The displacement magnitude for each water pixel is calculated based on the <em>angle of incidence</em> which is the angle at which the ray from the camera hits the water surface. This is a rough approximation for the distance an underwater ray travels, which affects the amount of distortion.</li>
     <li>The underwater image is rendered on the water, but a displacement is applied based on the water surface normal and the previously calculated displacement magnitude.</li>
 </ol>
+<p>The video shows a test of this "fake refraction" effect. Koi displace an unrealistic amount of water above them for testing purposes. The only thing that remains are reflections of both the sky and plants on the pond shores, but since neither exist for now, I'll implement that later.</p>
