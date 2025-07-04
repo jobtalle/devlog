@@ -71,6 +71,8 @@ def print_posts():
 
                 post_index += link if index != link_index else "<li>%s</li>" % post_dates[link_index]
 
+            post_index += "<hr>"
+
             file.write(compress_html(replace_multiple(template,
                 {
                     "$index$": post_index,

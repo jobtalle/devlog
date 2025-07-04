@@ -1,5 +1,23 @@
 :root {
     --color-dark: #2f2f2f;
+    --color-link: #6298E0;
+}
+
+a:link {
+    color: var(--color-link);
+}
+
+a:visited {
+    color: gray;
+}
+
+.icon {
+    float: right;
+    fill: var(--color-dark);
+}
+
+.icon:hover {
+    fill: var(--color-link);
 }
 
 body {
