@@ -1,0 +1,29 @@
+<h2>Shadows</h2>
+<p>Up until this point I've already had simple shadows, but these were just projected in a fixed size square region around the camera focus area. That meant that distant shadows broke down. When doing shadows well, it's important that they work in all sorts of situations.</p>
+<p>Shadows are rendered by rendering the scene twice: first, the scene is rendered from the perspective of a light source casting shadows, like the sun. No colors or shading are calculated in this pass, just depth values relative to the light source. Then, when the scene is rendered fully, every shadow receiving pixel first calculates where their pixel lies on the shadow render target, and then they evaluate whether they are further away than the nearest object to the light source or not. If they are further away, that means the light source was obstructed and a shadow needs to be cast.</p>
+<p>That part worked. The tricky part is calculating where shadows need to be rendered, and keeping the amount of detail high enough to prevent pixelated shadows. A few problems emerge:</p>
+<ul>
+    <li>Shadow quality needs to scale with zoom. When looking at fish from nearby, the quality of the shadows needs to be higher.</li>
+    <li>The visible area does not have a square shape, so a texture won't fit over it nicely. The <a href="2025_05.html" target="_blank">May update</a> shows the shape of a visible area on the scene grid.</li>
+    <li>When the camera looks towards the horizon, you can see very far away. The shadow texture has limited size, and it's too small to contain shadows for hundreds of meters of scenery at sufficient detail.</li>
+</ul>
+<p>To solve these issues, I go through a number of steps to calculate the shadow projection:</p>
+<figure>
+    <img src="shadows.jpg" alt="The shadow projection">
+    <figcaption>The shadow projection</figcaption>
+</figure>
+<ol>
+    <li>I take the visibility polygon from the grid algorithm, which is a shape with four points in which all visible things are contained.</li>
+    <li>I calculate a "horizon" beyond which no shadows are rendered. This horizon is defined by an angle; if the angle between the ground surface and the direction of incoming view vectors is smaller than a certain value, it is considered "beyond the horizon", it's far enough that no shadows or other detailed effects need to be rendered. The visibility polygon is then cropped to only contain the area that's closer than the horizon threshold.</li>
+    <li>The resulting shape is projected from the light perspective.</li>
+    <li>I fit a square shape around the projected shape, because the shadow render target is also square.</li>
+    <li>Shadows are rendered to that square region.</li>
+</ol>
+<p>This ensures that shadows are rendered for visible regions that are close enough to the camera. The shadow-mapped region is smaller when zoomed in, so shadows will be more detailed when they need to be. Because the shadow map may be cut off beyond the horizon, if the horizon is in view, I also fade out shadows as they get near the horizon line, so no hard cut can be seen.</p>
+<figure>
+    <img src="softShadow.jpg" alt="Soft shadow edges">
+    <figcaption>Soft shadow edges</figcaption>
+</figure>
+<p>The image shows what's going on: the big yellow arrow is the sun direction. The white quad shows the visible water area in this scene, the blue quad below it shows the visible underwater area, and the yellow box encompasses everything. Shadows will be rendered inside the box, the shadow map is created by rendering the contents of the box to a texture.</p>
+<p>Shadows are also softer now. Instead of just sampling one value from the shadow map, several values are sampled and averaged to create smooth transitions between shadow borders. Realistically, shadows should become softer when the shadow casting object is further away from the shadow receiving object. This is called <dfn>contact hardening</dfn>, and it's something I've yet to try.</p>
+<p>So far, only things between the pond floor and the surface cast and receive shadows, mostly because there's nothing above the ground. That will soon change though, because I've started working on vegetation rendering. I'm not sure yet whether (small) vegetation should cast and receive shadows using this same technique. There are alternatives that may work better for small details, like a combination of ambient occlusion and screen space shadows, while very large objects still cast shadows in the normal way.</p>

@@ -10,7 +10,7 @@
 <ul>
     <li>Objects below the water surface are colored slightly differently.</li>
     <li>Some objects are partially submerged, like plants.</li>
-    <li>When light travels from air to water, <em>refraction</em> occurs. Light moves through the water surface at an angle creating distortion.</li>
+    <li>When light travels from air to water, <dfn>refraction</dfn> occurs. Light moves through the water surface at an angle creating distortion.</li>
     <li>Water is very reflective, it should reflect the scenery around it and the sky above.</li>
     <li>Waves change shape all the time, and the water needs to animate these waves at a sufficiently high resolution.</li>
 </ul>
@@ -28,7 +28,7 @@
     <img src="refraction.jpg" alt="Ray-traced refraction">
     <figcaption>Ray-traced refraction</figcaption>
 </figure>
-<p>Rendering refraction turned out to be a major issue. When using ray-tracing techniques it's pretty trivial, but I can't rely on users running hardware with these capabilities, and the koi models will be way too complex to ray-trace efficiently. I've tried <em>screen space refractions</em>, where I first rendered the underwater scene to an image, and then ray-traced into that image from every water surface pixel to find out what pixel should be visible there. The resulting distortion is physically correct, but the results weren't pixel perfect because I've had to limit the ray-tracing resolution to keep frame rate within acceptable levels, and tracing colors behind koi on a pre-rendered image is impossible. This created many false positive traces where a koi pixel was hit, while in reality a pixel <em>behind</em> the koi had to be retrieved. It's impossible to distinguish different "layers" of colors in a single image. The image on the right shows the result of this problem. some pixels get the right color, but whenever the refracted ray goes behind something, noisy artifacts show up instead of what you should have seen. The black and white koi in the top left is a great example: many rays hit behind the koi but return koi pixels instead, which extrudes the koi upwards.</p>
+<p>Rendering refraction turned out to be a major issue. When using ray-tracing techniques it's pretty trivial, but I can't rely on users running hardware with these capabilities, and the koi models will be way too complex to ray-trace efficiently. I've tried <dfn>screen space refractions</dfn>, where I first rendered the underwater scene to an image, and then ray-traced into that image from every water surface pixel to find out what pixel should be visible there. The resulting distortion is physically correct, but the results weren't pixel perfect because I've had to limit the ray-tracing resolution to keep frame rate within acceptable levels, and tracing colors behind koi on a pre-rendered image is impossible. This created many false positive traces where a koi pixel was hit, while in reality a pixel <dfn>behind</dfn> the koi had to be retrieved. It's impossible to distinguish different "layers" of colors in a single image. The image on the right shows the result of this problem. some pixels get the right color, but whenever the refracted ray goes behind something, noisy artifacts show up instead of what you should have seen. The black and white koi in the top left is a great example: many rays hit behind the koi but return koi pixels instead, which extrudes the koi upwards.</p>
 <p>Eventually, I settled on faking refraction convincingly:</p>
 <figure>
     <video autoplay loop muted playsinline width="500px">
@@ -38,7 +38,7 @@
 </figure>
 <ol>
     <li>Underwater objects are rendered to an image. Everything underwater is skewed upwards in a way that approximates the effect of refracting light rays, excluding shadows and depth based calculations.</li>
-    <li>The displacement magnitude for each water pixel is calculated based on the <em>angle of incidence</em> which is the angle at which the ray from the camera hits the water surface. This is a rough approximation for the distance an underwater ray travels, which affects the amount of distortion.</li>
+    <li>The displacement magnitude for each water pixel is calculated based on the <dfn>angle of incidence</dfn> which is the angle at which the ray from the camera hits the water surface. This is a rough approximation for the distance an underwater ray travels, which affects the amount of distortion.</li>
     <li>The underwater image is rendered on the water, but a displacement is applied based on the water surface normal and the previously calculated displacement magnitude.</li>
 </ol>
 <p>The video shows a test of this "fake refraction" effect. Koi displace an unrealistic amount of water above them for testing purposes. The only thing that remains are reflections of both the sky and plants on the pond shores, but since neither exist for now, I'll implement that later.</p>
