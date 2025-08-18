@@ -95,7 +95,6 @@ body {
 
 #post figure {
     float: right;
-    margin-right: 0;
     clear: right;
 }
 
@@ -145,6 +144,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
 }
 
 #menu-toggle:hover {
@@ -168,7 +168,7 @@ body {
     #index {
         position: fixed;
         right: 0;
-        top: calc(var(--menu-toggle-height) + 1px);
+        top: calc(var(--menu-toggle-height) - 1px);
         margin: var(--body-margin);
         background-color: var(--color-content);
         border: 1px solid var(--color-dark);
