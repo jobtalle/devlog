@@ -1,7 +1,13 @@
 :root {
+    --color-background: #e6e8d2;
+    --color-content: #efefef;
     --color-dark: #2f2f2f;
     --color-link: #5488cc;
     --color-hover: #4ba837;
+    --width: 1000px;
+    --body-margin: 8px;
+    --menu-toggle-width: 64px;
+    --menu-toggle-height: 24px;
 }
 
 a:link {
@@ -27,13 +33,14 @@ a:hover {
 }
 
 body {
-    background-color: #e6e8d2;
+    background-color: var(--color-background);
     color: var(--color-dark);
     font-family: sans-serif;
+    margin: var(--body-margin);
 }
 
 #wrapper {
-    max-width: 1000px;
+    max-width: var(--width);
     margin-left: auto;
     margin-right: auto;
 }
@@ -64,7 +71,7 @@ body {
 }
 
 #post {
-    background-color: #efefef;
+    background-color: var(--color-content);
     padding: 12px;
     display: inline-block;
     border: 1px solid var(--color-dark);
@@ -99,4 +106,71 @@ body {
 
 #footer .next {
     float: right;
+}
+
+.dropdown-checkbox {
+    display: none;
+}
+
+.dropdown-menu {
+    display: none;
+}
+
+.dropdown-checkbox:checked ~ .dropdown-menu {
+    display: block;
+}
+
+#menu-toggle {
+    position: fixed;
+    right: 0;
+    width: var(--menu-toggle-width);
+    height: var(--menu-toggle-height);
+    margin: var(--body-margin);
+    background-color: var(--color-content);
+    border: 1px solid var(--color-dark);
+    flex-direction: column;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#menu-toggle:hover {
+    cursor: pointer;
+}
+
+@media (max-width: 1000px) {
+    body {
+        margin: 0;
+        background-color: var(--color-content);
+    }
+
+    #index {
+        position: fixed;
+        right: 0;
+        top: calc(var(--menu-toggle-height) + 1px);
+        margin: var(--body-margin);
+        background-color: var(--color-content);
+        border: 1px solid var(--color-dark);
+        max-height: 80%;
+        overflow: auto;
+    }
+
+    #post {
+        border: none;
+    }
+
+    #menu-toggle {
+        display: flex;
+    }
+}
+
+@media (min-width: 1001px) {
+    #index {
+        display: block;
+    }
+
+    #menu-toggle {
+        display: none;
+    }
 }
