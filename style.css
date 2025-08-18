@@ -181,10 +181,6 @@ body {
         border-top: none;
         border-bottom: 1px solid var(--color-dark);
     }
-
-    #menu-toggle {
-        display: flex;
-    }
 }
 
 @media (min-width: 1001px) {
