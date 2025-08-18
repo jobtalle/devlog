@@ -159,6 +159,10 @@ body {
         background-color: var(--color-content);
     }
 
+    #post h2 {
+        margin-top: 24px;
+    }
+
     #index {
         position: fixed;
         right: 0;
