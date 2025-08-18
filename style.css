@@ -6,7 +6,7 @@
     --color-hover: #4ba837;
     --width: 1000px;
     --body-margin: 8px;
-    --menu-toggle-width: 64px;
+    --menu-toggle-width: 80px;
     --menu-toggle-height: 24px;
 }
 
@@ -121,6 +121,10 @@ body {
     display: block;
 }
 
+.dropdown-checkbox:checked ~ .dropdown-toggle #menu-toggle span:before {
+    content: "Index ▲";
+}
+
 #menu-toggle {
     position: fixed;
     right: 0;
@@ -138,6 +142,10 @@ body {
 
 #menu-toggle:hover {
     cursor: pointer;
+}
+
+#menu-toggle span:before {
+    content: "Index ▼";
 }
 
 @media (max-width: 1000px) {
