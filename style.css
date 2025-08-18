@@ -158,7 +158,6 @@ body {
 @media (max-width: 1000px) {
     body {
         margin: 0;
-        background-color: var(--color-content);
     }
 
     #post h2 {
@@ -177,7 +176,10 @@ body {
     }
 
     #post {
-        border: none;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        border-bottom: 1px solid var(--color-dark);
     }
 
     #menu-toggle {
