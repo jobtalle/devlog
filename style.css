@@ -127,7 +127,7 @@ body {
     display: block;
 }
 
-.dropdown-checkbox:checked ~ .dropdown-toggle #menu-toggle span:before {
+.dropdown-checkbox:checked ~ #menu-toggle span:before {
     content: "Index ▲";
 }
 
