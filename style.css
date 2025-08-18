@@ -105,6 +105,11 @@ body {
     max-width: 100%;
 }
 
+#footer {
+    padding: var(--body-margin);
+    margin-bottom: 32px;
+}
+
 #footer .next {
     float: right;
 }
