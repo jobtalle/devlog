@@ -37,6 +37,7 @@ body {
     color: var(--color-dark);
     font-family: sans-serif;
     margin: var(--body-margin);
+    font-size: 12pt;
 }
 
 #wrapper {
