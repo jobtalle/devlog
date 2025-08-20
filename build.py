@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import datetime
 
 months = [
     "January",
@@ -84,6 +85,7 @@ def print_posts():
                     "$next$": "<span class=\"next\"><a href=\"%s\">%s</a></span>" % (
                         posts[index - 1] + ".html",
                         "next >>") if index > 0 else "",
+                    "$year$": str(datetime.now().year)
                 })))
             file.close()
 
