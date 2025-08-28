@@ -2,6 +2,8 @@ import os
 import re
 from datetime import datetime
 
+from PIL import Image
+
 months = [
     "January",
     "February",
@@ -28,11 +30,28 @@ def replace_multiple(string, table):
     return re.compile("|".join(map(re.escape, table.keys()))).sub(lambda match: table[match.group(0)], string)
 
 def process_post(string, post, date):
-    return replace_multiple(string,
-        {
-            "src=\"": "src=\"posts\\%s\\" % post,
-            "</h2>": "</h2><h3>%s</h3>" % date
-        })
+    string = replace_multiple(string, {
+        "src=\"": f"src=\"posts\\{post}\\",
+        "</h2>": f"</h2><h3>{date}</h3>"
+    })
+
+    def add_image_dimensions(match):
+        src_attr = match.group(0)
+        src_path = match.group(1)
+
+        if src_path.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+            try:
+                with Image.open(src_path) as img:
+                    width, height = img.size
+                    return f'{src_attr} width="{width}" height="{height}"'
+            except (OSError, IOError):
+                pass
+
+        return src_attr
+
+    string = re.sub(r'src="([^"]*)"', add_image_dimensions, string)
+
+    return string
 
 def print_posts():
     posts = sorted(os.listdir("posts/"), reverse = True)
