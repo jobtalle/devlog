@@ -100,6 +100,7 @@ body {
 
 #post img {
     max-width: 100%;
+    height: auto;
 }
 
 #post video {
