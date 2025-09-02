@@ -1,1 +1,46 @@
 <h2>Holland Koi Show</h2>
+<figure>
+    <img src="winners.webp" alt="Prize winning koi">
+    <figcaption>Prize winning koi</figcaption>
+</figure>
+<p>This month, I've visited the <em>Holland Koi Show</em>, an annual event where top tier koi are showcased. I didn't have to travel <a href="2024_09.html">all the way to Japan</a> this time, and it was an amazing opportunity to learn more, and observe many things I haven't seen before. Both professionals and hobbyists showcased prize winning koi, and I'm starting to get a feeling for which koi are considered "ideal" and which ones don't stand out to enthusiasts. Some koi at this show were in the same league as the ones I've seen at the top tier breeders in Japan.</p>
+<p>When I made Koi Farm 1, I didn't know much (or anything really) about koi, and the only way I could imagine many variations was by adding colors that don't occur in real life. This show really helped me see the ways in which koi can vary without going into the realm of fantasy. Although I don't want to rule out adding "fantasy colors" to Koi Farm 2, I've seen a great deal of natural variation amongst the prize winners. At this event, the koi are displayed in pools that visitors can inspect, so it was very easy to take pictures and observe details like scales up close.</p>
+<figure>
+    <img src="scales.webp" alt="Shiny scales">
+    <figcaption>Shiny scales</figcaption>
+</figure>
+<p>Koi Farm 1 didn't have enough resolution and detail to do anything with scales, but after seeing koi with beautiful scales at this event, I'm convinced they need to play a large role in the next installment. Scales stand out in different ways:</p>
+<ul>
+    <li>Scales can be very shiny and metallic, reflecting light beautifully.</li>
+    <li>Some koi have really large scales, specifically along the dorsal fin. These can have a different color, and they can also be somewhat irregular.</li>
+    <li>Others have very visible scales along the entire body, which seem to amplify or dampen the pigments below it.</li>
+    <li>Some koi don't have any clearly visible scales at all.</li>
+</ul>
+<figure>
+    <img src="decorations.webp" alt="References">
+    <figcaption>References</figcaption>
+</figure>
+<p>I brought back some framed posters with koi types from the show to decorate the office. My knowledge about koi types used to be quite limited, I could recognize a Kohaku or a Tancho, but I'll soon be able to name all major types! Whether these names can play a role in the game remains to be seen; most koi are a mix between types, and it's probably more fun if players are free to make up their own names.</p>
+<p>In the programming department, I've started work on the scenery. Before moving on with detailing the koi, I want to prototype some rough scenery management in the game, since the ponds now feel very bare. The <a href="2025_05.html">grid system</a> was extended to accommodate vegetation meshes. There are several types of vegetation:</p>
+<ul>
+    <li>Grass, moss and other plants that cover the soil by default. These can't be planted, but show up anywhere unless something else is planted or placed there.</li>
+    <li>Placed plants, like trees and flowers.</li>
+</ul>
+<figure>
+    <img src="grass.webp" alt="Grass in a traditional Japanese garden">
+    <figcaption>Grass in a traditional Japanese garden</figcaption>
+</figure>
+<p>At this moment, I'm not really sure what kind of plants should cover the ground. In traditional gardens, you'll often see moss and rocks, but in the mountains near Ojiya where the koi farms are, you'll see more grasses and short bamboo. While I love moss, the main disadvantage is that it doesn't really move in the wind. Environments feel much more natural if they aren't static, so while moss should play a role, I'll probably cover the ground with short grass and maybe bamboo. Another advantage of taller plants is that their reflection will show up in the water, which makes shores look nicer and easier to read.</p>
+<p>The image on the right shows the shore of a koi pond in a traditional Japanese garden. This is the garden of Saito Villa in Niigata. That's approximately the look I'm going for. The tall grass is brightly colored and covers the shore nicely. The pattern is broken up by rocks. On the right, a clump of short bamboo can also be seen.</p>
+<figure>
+    <img src="plants.webp" alt="Dispersing grass roots on the tiles">
+    <figcaption>Dispersing grass roots on the tiles</figcaption>
+</figure>
+<p>The engine was extended with a basic plant rendering system, where each visible grid cell can contain different types of plants, starting with grass. The grass positions are distributed according to <dfn>Poisson-disk sampling</dfn> to prevent overlap, the image on the right shows the positions where the clumps will show up. I've encountered a few large hurdles while implementing the plant rendering infrastructure in the engine:</p>
+<ul>
+    <li>Load time is increasing. While still very short, I could see these escalate in the near future. Because so much procedural content is being generated on the CPU, the game has to wait before work is finished. I've implemented a multithreaded initializer system that performs initialization work during the intro screen, while the graphics driver loads the pipelines. Initialization work is spread over all available threads, so the game uses every core to quickly initialize systems in parallel before the intro screen is over.</li>
+    <li>Just like koi modelling and patterning, all plant modelling work is multithreaded. Uploading asynchronously modelled plants in the main thread suddenly became very slow. It turned out my VRAM memory management system was the culprit: I used a vector to store all available memory blocks, and whenever a block was removed from the middle part of the vector, all elements behind it shift left. The staging memory systems do this very frequently, which means that a very large amount of memory is being moved while new assets are being created. When I replaced the vector by a linked list (which is of course the proper data structure for these things), the algorithm became even slower. Eventually I ended up implementing a custom liked list with pooled memory and sorting heuristics, which is very fast and solves this issue entirely, even under stress tests which strain the system more than the game ever will.</li>
+    <li>When ponds are dug out, vegetation needs to adapt. Re-generating vegetation assets can be quite slow on limited hardware. This work is multithreaded so the game won't freeze, but things need to adapt with a reasonable frequency while ponds are being dug out. It'd be awkward if grass coverage took seconds to update while digging out a pond, because the old plants would hide the new pond area. Therefore, some level of caching is required: when the ponds change, only affected tiles will update, and they will update as fast as the players hardware can manage to do it. This seems to be fast enough with my test assets, but I might have to do more when complex vegetation models are generated, like hiding the contents of a tile until they are generated instead of waiting on the update.</li>
+</ul>
+<p>To eventually visually connect vegetation to the ground, I started work on a system that assigns both a color and a "coverage" shape to the ground. Terrain directly under plants will take the same color as the lower parts of the plant to ensure they connect smoothly, and the coverage shape designates where the ground takes this color: under a patch of grass, the ground will be completely green, but near the shore, it will transition into a rocky texture.</p>
+<p>With these systems in place, I can now start working on modelling the first plants and decorating the environment. I'll start with clumps of grass and bamboo first, and I'll experiment with more complex plants and trees later this year.</p>
