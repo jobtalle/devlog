@@ -76,7 +76,6 @@ body {
     padding: 12px;
     display: inline-block;
     border: 1px solid var(--color-dark);
-    width: 100%;
 }
 
 #post h2 {
