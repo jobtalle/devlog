@@ -1,0 +1,11 @@
+<h2>September</h2>
+<p>Because I need image assets to render plants, I had to develop a system for storing and loading textures. These will all be loaded at startup while the game is loading all other systems, so all textures can just be compiled into a big batch of data that needs to be unpacked and uploaded as soon as possible. This is very similar to what I'm already doing with the shaders, so I've extended the shader archive system to be used for more types of assets, like images. All source files are sorted by name, the names and pointers to the file bytes are stored in a header and the file data is appended after that.</p>
+<p>Modern image formats are great. They compress images in very innovative ways, and since images are one of the largest file types that are sent around, it helps when they can be compressed even a little bit more. These algorithms get complicated though, more complicated than the standard <dfn>Zlib</dfn> compression I'm already using for shaders. It turns out:</p>
+<ul>
+    <li>that PNG files are easily 20% smaller than my Zlib compressed files,</li>
+    <li>but this advantage partially disappears when I compress all my textures in one blob, which I do,</li>
+    <li>but combining all my textures in a big single image makes PNG better again,</li>
+    <li>but its decompression algorithm is significantly slower than Zlib, which reduces my load times,</li>
+    <li>but smaller files load much faster, giving the CPU more time to decompress.</li>
+</ul>
+<p>There are many things to consider, and the differences between approaches aren't huge since I won't use many textures, most content is procedurally generated on the fly. Therefore, I've decided to use my existing archive system to store all textures in one big compressed blob and decompress them once during startup for uploading.</p>
