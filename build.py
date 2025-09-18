@@ -18,6 +18,7 @@ months = [
     "November",
     "December"]
 regex_title = re.compile("(\d*)_0?(\d*)")
+regex_header = re.compile("<h2[^>]*>(.*?)</h2>")
 template = open("template/template.html", "r").read()
 template_index = open("template/template_index.html", "r").read()
 template_rss = open("template/template_rss.xml", "r").read()
@@ -59,13 +60,16 @@ def print_posts():
     post_years = []
     post_dates = []
     post_links = []
+    post_html = []
     rss_items = []
 
     for index, post in enumerate(posts):
         date = regex_title.search(post)
         post_years.append(int(date[1]))
         post_dates.append(months[int(date[2]) - 1] + " " + date[1])
-        post_links.append("<li><a href=\"%s\">%s</a></li>" % (
+        post_html.append(open("posts/" + post + "/content.html").read())
+        post_links.append("<li><a title=\"%s\" href=\"%s\">%s</a></li>" % (
+            regex_header.search(post_html[index])[1],
             post + ".html",
             post_dates[index]))
 
@@ -97,7 +101,7 @@ def print_posts():
                 {
                     "$index$": post_index,
                     "$title$": post_dates[index],
-                    "$post$": process_post(open("posts/" + post + "/content.html").read(), post, post_dates[index]),
+                    "$post$": process_post(post_html[index], post, post_dates[index]),
                     "$previous$": "<span class=\"previous\"><a href=\"%s\">%s</a></span>" % (
                         posts[index + 1] + ".html",
                         "<< previous") if index < len(posts) - 1 else "",
