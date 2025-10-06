@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 from datetime import datetime
 
 from PIL import Image
@@ -54,7 +55,7 @@ def process_post(string, post, date):
 
     return string
 
-def print_posts():
+def print_posts(selective = None):
     posts = sorted(os.listdir("posts/"), reverse = True)
     post_index = ""
     post_years = []
@@ -86,7 +87,15 @@ def print_posts():
         rss_items.append(rss_pattern.sub(replace, template_rss_item))
 
     for index, post in enumerate(posts):
-        with open(post + ".html", "w") as file:
+        output_name = post + ".html"
+
+        if selective is not None and output_name != selective:
+            continue
+
+        if os.path.exists(output_name):
+            os.remove(output_name)
+
+        with open(output_name, "w") as file:
             post_index = ""
 
             for link_index, link in enumerate(post_links):
@@ -120,10 +129,4 @@ def print_posts():
         file.write(compress_html(template_rss.replace("$items$", "".join(rss_items))))
         file.close()
 
-def clear_pages():
-    for file in os.listdir("."):
-        if file.endswith(".html"):
-            os.remove(file)
-
-clear_pages()
-print_posts()
+print_posts(sys.argv[1][2:] if len(sys.argv) > 1 else None)
