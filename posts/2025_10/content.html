@@ -1,0 +1,12 @@
+<h2>A tiny distraction</h2>
+<figure>
+    <img src="hands.webp" alt="A tiny distraction">
+    <figcaption>A tiny distraction</figcaption>
+</figure>
+<p>During October, I was supposed to implement ground texturing and more advanced grass rendering, but I was distracted by my daughter who arrived a few weeks earlier than expected. I'm getting used to sleeping in an entirely different way, and I may have to start drinking coffee again.</p>
+<p>I did manage to implement some important but invisible things. The systems that model terrain and grass on a separate thread had some unimplemented optimization opportunities, and since I'm generating grass assets, it became clear they had to be implemented for the game to run smoothly.</p>
+<ul>
+    <li>The grass modelling thread no longer updates grass after every digging operation, because the queue of updates became very long and started to lag behind digging operations if they took too long. Instead, I now update grass as fast as possible while skipping intermediate updates if newer updates are available. Digging feels much more responsive now. This logic was implemented in the multithreading system, I'll probably be able to use it later for other things.</li>
+    <li>Since not all digging operations in a certain area affect grass coverage, I skip grass modelling updates early to prevent duplicate work.</li>
+    <li>Grass and other ground coverage is randomly distributed according to a <dfn>Poisson disk distribution</dfn>. I've written about this method in <a href="https://jobtalle.com/random_procedural_generation.html" target="_blank">a blog post</a> relating to Koi Farm 1. These distributions are pre-calculated when the game boots up; I've made a collection of reusable distributions that will be used in other procedural generation tasks.</li>
+</ul>
