@@ -129,4 +129,4 @@ def print_posts(selective = None):
         file.write(compress_html(template_rss.replace("$items$", "".join(rss_items))))
         file.close()
 
-print_posts(sys.argv[1][2:] if len(sys.argv) > 1 else None)
+print_posts(sys.argv[1] if len(sys.argv) > 1 else None)
