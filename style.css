@@ -67,6 +67,11 @@ body {
     margin: 0;
 }
 
+#index svg {
+    width: 20px;
+    height: 20px;
+}
+
 #blog {
     flex-grow: 1;
 }
