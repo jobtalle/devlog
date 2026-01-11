@@ -24,6 +24,7 @@ template = open("template/template.html", "r").read()
 template_index = open("template/template_index.html", "r").read()
 template_rss = open("template/template_rss.xml", "r").read()
 template_rss_item = open("template/template_rss_item.xml", "r").read()
+style = open("template/style.css", "r").read()
 
 def compress_html(string):
     return re.sub("|".join(map(re.escape, ["    ", "\n"])), "", string)
@@ -110,6 +111,7 @@ def print_posts(selective = None):
                 {
                     "$index$": post_index,
                     "$title$": post_dates[index],
+                    "$style$": style,
                     "$post$": process_post(post_html[index], post, post_dates[index]),
                     "$previous$": "<span class=\"previous\"><a href=\"%s\">%s</a></span>" % (
                         posts[index + 1] + ".html",
