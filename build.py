@@ -5,6 +5,12 @@ from datetime import datetime
 
 from PIL import Image
 
+def compress_html(string):
+    return re.sub("|".join(map(re.escape, ["    ", "\n"])), "", string)
+
+def replace_multiple(string, table):
+    return re.compile("|".join(map(re.escape, table.keys()))).sub(lambda match: table[match.group(0)], string)
+
 months = [
     "January",
     "February",
@@ -24,13 +30,12 @@ template = open("template/template.html", "r").read()
 template_index = open("template/template_index.html", "r").read()
 template_rss = open("template/template_rss.xml", "r").read()
 template_rss_item = open("template/template_rss_item.xml", "r").read()
-style = open("template/style.css", "r").read()
-
-def compress_html(string):
-    return re.sub("|".join(map(re.escape, ["    ", "\n"])), "", string)
-
-def replace_multiple(string, table):
-    return re.compile("|".join(map(re.escape, table.keys()))).sub(lambda match: table[match.group(0)], string)
+style = replace_multiple(open("template/style.css", "r").read(),
+    {
+        ": ": ":",
+        ", ": ",",
+        " {": "{"
+    })
 
 def process_post(string, post, date):
     string = replace_multiple(string, {
