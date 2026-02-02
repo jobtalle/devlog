@@ -1,0 +1,19 @@
+<h2>Cross-platform parity</h2>
+<figure>
+    <img src="platforms.png" alt="Different target platforms">
+    <figcaption>Different target platforms</figcaption>
+</figure>
+<p>This month, Koi Farm 2 was ported to the Nintendo Switch 1 completely. A big advantage is that the c++ codebase mostly works out of the box, although alternative input schemes were required, and some performance bottlenecks have come to light because the Switch processor is rather slow compared to other target devices.</p>
+<p>The diagram on the right shows a very rough overview of target platforms and their capabilities. Apart from raw performance, there's a second axis which displays the degree of modernity of the target platforms.</p>
+<ul>
+    <li>The PC has the broadest range of devices: some older gaming PCs are still fast enough, but not very modern, so modern GPU features can't be used on them. Raytracing or upscaling won't be supported on them, but there are other less visible features that also may not be supported like GPU device addresses.</li>
+    <li>The Nintendo Switch is very easy to target, because there's just a single hardware configuration to support. It's not super modern, and very slow compared to gaming PCs.</li>
+    <li>Mobile phones are pretty fast nowadays, and in my estimation GPU feature support is slightly better than PCs, mostly because people replace their phones more often than their PCs.</li>
+</ul>
+<figure>
+    <img src="switch.webp" alt="Koi Farm 2 running on the Switch 1">
+    <figcaption>Koi Farm 2 running on the Switch 1</figcaption>
+</figure>
+<p>The horizontal axis is a tricky one. Modern GPU features allow developers to write code that runs a bit more efficient on modern hardware, so using these features improves performance while making the game incompatible with older devices. Not using these features will make the game available on old devices, but performance will suffer on modern yet slow devices.</p>
+<p>We've stress tested the current build by rendering way too much grass and spawning hundreds of koi. The Switch mostly has trouble with rendering very large amounts of foliage in the distance, but rendering many koi is fine. That means the Switch build will most likely render with reduced detail in the distance, while the number of koi and the map size can be the same as the PC version. I'm very happy with that, it means I won't have to design the gameplay around different world size limits.</p>
+<p>From this point onwards, the two main target platforms (Switch and PC) will be the same. We'll periodically verify whether everything I build for the PC version still works on the switch, and when the game is done, both versions will have the same content. Nintendo isn't selling Switch 2 devkits to small developers yet, but the programming environment will most likely be very similar. The Switch 2 is a lot faster and may support slightly different input options, which we'll support when we get access to a devkit.</p>
