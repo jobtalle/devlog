@@ -22,6 +22,10 @@
         <li>The cell is partially visible. This means I need to go deeper to accurately determine what's visible. That means I have to recursively test the four lower level cells contained in this cell, so I go back to step 1.</li>
     </ol>
 </ul>
+<figure>
+    <img src="volumes.webp" alt="Cell volumes">
+    <figcaption>Cell volumes</figcaption>
+</figure>
 <p>This method is extremely fast. Instead of testing every cell for visibility every frame (which doesn't scale for larger scenes), this algorithm tests approximately the same number of cells per frame regardless of the total number of cells in the scene. The algorithm means world size is not limited by culling performance, and I don't have to worry about either performance or accuracy. The performance benefits come from the fact that most cells are either rejected or accepted at a high level, I only cull lower level cells when they're on the boundaries of the camera frustum.</p>
 <p>While working on the grid systems, I've built a more efficient system that tracks visibility of objects in the scene. Two types of objects exists:</p>
 <ol>
