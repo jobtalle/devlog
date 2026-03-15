@@ -1,41 +1,80 @@
 import sys
+import subprocess
 from pathlib import Path
 
-# Extensions to include
-EXTENSIONS = {".c", ".cpp", ".h", ".py"}  # modify as needed
+EXTENSIONS = {".c", ".cpp", ".h", ".py"}
 
 
-def count_files_and_lines(directory: Path):
-    file_count = 0
-    line_count = 0
+def get_repo_root(path):
+    result = subprocess.run(
+        ["git", "-C", str(path), "rev-parse", "--show-toplevel"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return Path(result.stdout.strip())
 
-    for path in directory.rglob("*"):
-        if path.is_file() and path.suffix.lower() in EXTENSIONS:
-            file_count += 1
-            try:
-                with path.open("r", encoding="utf-8", errors="ignore") as f:
-                    line_count += sum(1 for _ in f)
-            except Exception as e:
-                print(f"Could not read {path}: {e}")
+def git_command(repo_dir, args):
+    result = subprocess.run(
+        ["git", "-C", str(repo_dir)] + args,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return result.stdout
 
-    return file_count, line_count
+
+def get_files_at_commit(repo_root, commit):
+    output = git_command(repo_root, ["ls-tree", "-r", "--name-only", commit])
+    return output.splitlines()
+
+
+def get_file_content(repo_dir, commit, path):
+    result = subprocess.run(
+        ["git", "-C", str(repo_dir), "show", f"{commit}:{path}"],
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        print(f"git show failed for {path}: {result.stderr.strip()}")
+        return ""
+
+    return result.stdout
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python count_lines.py <directory>")
+    if len(sys.argv) != 3:
+        print("Usage: python count_lines_git.py <repo_dir> <commit>")
         sys.exit(1)
 
-    directory = Path(sys.argv[1])
+    repo_path = Path(sys.argv[1]).resolve()
+    commit = sys.argv[2]
 
-    if not directory.is_dir():
-        print("Error: Provided path is not a directory.")
-        sys.exit(1)
+    repo_root = get_repo_root(repo_path)
+    relative_dir = repo_path.relative_to(repo_root)
 
-    files, lines = count_files_and_lines(directory)
+    files = get_files_at_commit(repo_root, commit)
 
-    print(f"Files found: {files}")
-    print(f"Total lines: {lines}")
+    file_count = 0
+    line_count = 0
+
+    for f in files:
+        p = Path(f)
+
+        print(p)
+
+        # restrict to the requested directory
+        if relative_dir not in p.parents and p != relative_dir:
+            continue
+
+        if p.suffix.lower() in EXTENSIONS:
+            content = get_file_content(repo_root, commit, f)
+            line_count += len(content.splitlines())
+            file_count += 1
+
+    print(f"Files found: {file_count}")
+    print(f"Total lines: {line_count}")
 
 
 if __name__ == "__main__":
