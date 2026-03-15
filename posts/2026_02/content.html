@@ -1,0 +1,37 @@
+<h2>Culling</h2>
+<p>The entire scene in the game is subdivided into a <a href="2025_05.html">triangular grid</a>, and grid cell visibility is calculated using a simple method that projects the view area onto a flat plane and determine which grid cells are inside it. This worked fairly well for flat test worlds, but since I've implemented <a href="2025_11.html">hills</a>, this no longer works. When looking down a hill, more cells between the camera and the horizon are visible, and when I'm looking at a slope that goes up, the opposite thing happens. The grid cells will soon contain plants too, which increases the visible area of a cell, so a new <em>culling method</em> (determining whether grid cells are visible or not) was needed. There are a few requirements:</p>
+<ol>
+    <li>The algorithm can't make any assumptions about the volume of a cell. It can contain a tall tree, or nothing at all. Some scenes may be relatively flat, while others can have high mountains and deep valleys.</li>
+    <li>The algorithm needs to scale. Scenes in Koi Farm 2 will be much larger than the small fixed size pond in Koi Farm 1. When one scene is four times larger than another, the culling algorithm should be able to support that without becoming four times slower.</li>
+    <li>The algorithm needs to be very fast. Culling needs to happen every frame (or at least when the camera has moved), and modern monitors can have very high refresh rates. Overhead has to be minimal.</li>
+</ol>
+<figure>
+    <img src="triangles.webp" alt="Triangular grid cells">
+    <figcaption>Triangular grid cells</figcaption>
+</figure>
+<p>To support the first requirement, every grid cell gets a sphere which contains all its contents. Sphere are very fast to work with mathematically, but they also have an extra benefit: when I add a tree to a cell, it becomes much taller than wide. The tree will almost always branch outside the triangular area of the cell near the top. Because a sphere is fit around the cell volume, these branches will automatically be included in the cell's bounding volume, without complicating the culling algorithm further.</p>
+<p>To make the algorithm scale, I've implemented a <dfn>bounding volume hierarchy</dfn>, which works as follows:</p>
+<ul>
+    <li>Every triangular grid cell gets a <dfn>bounding sphere</dfn>, which is the smallest sphere that contains the entire cell.</li>
+    <li>On top of these cells, I make a layer of <em>container cells</em>, which contain exactly for lower level cells. They also have a bounding sphere which fits exactly around the four lower level spheres it contains.</li>
+    <li>I recursively make more layers of container cells, until I arrive at a very small number (about 20) of very large triangles which contain the entire scene.</li>
+    <li>To determine which cells are visible, I first iterate over the small top level cells. I test whether these are within the <dfn>camera frustum</dfn> (the visible volume). This will yield either of three results:</li>
+    <ol>
+        <li>The cell is completely invisible. In this case, I skip all lower level cells, they must also be invisible.</li>
+        <li>The cell is completely inside the camera frustum, so all lower level cells must be visible. I can turn them all on without testing more.</li>
+        <li>The cell is partially visible. This means I need to go deeper to accurately determine what's visible. That means I have to recursively test the four lower level cells contained in this cell, so I go back to step 1.</li>
+    </ol>
+</ul>
+<figure>
+    <img src="volumes.webp" alt="Cell volumes">
+    <figcaption>Cell volumes</figcaption>
+</figure>
+<p>This method is extremely fast. Instead of testing every cell for visibility every frame (which doesn't scale for larger scenes), this algorithm tests approximately the same number of cells per frame regardless of the total number of cells in the scene. The algorithm means world size is not limited by culling performance, and I don't have to worry about either performance or accuracy. The performance benefits come from the fact that most cells are either rejected or accepted at a high level, I only cull lower level cells when they're on the boundaries of the camera frustum.</p>
+<p>While working on the grid systems, I've built a more efficient system that tracks visibility of objects in the scene. Two types of objects exists:</p>
+<ol>
+    <li>Objects that fit on a single grid cell, like plants and small decorations, or patches of foliage. The GPU has a list of visible cells, and whenever this list changes, it rebuilds the lists of draw calls that render these objects.</li>
+    <li>Objects that span multiple cells, like ponds or large scenery objects. I can't build render lists for these based on the number of visible cells, because they're added to all the cells they touch. Instead, I keep a visibility tracker for them, which count how many of the cells they touch are visible. When this count goes from 0 to 1, the object becomes visible, and when it goes from 1 to 0, it becomes invisible.</li>
+</ol>
+<p>Most objects will fall into the first category, which is great for performance, because these draw lists are built by compute shaders on the GPU. Because object visibility follows from the visibility of the cells they are on, I don't need to cull objects individually. This wouldn't be viable with the amount of plants I plan to simulate.</p>
+<p>A final performance optimization is that the culling algorithm only runs when the camera has moved, or when any of the spheres changes when objects are added to or removed from the scene. This is very convenient when players are not moving through the world but working in the interface with koi cards instead; while rendering and updating the interface elements consumes performance budget, some performance is saved by not culling the scene behind it.</p>
+<p>I'm actually surprised by how fast this runs. The performance impact is negligible on desktop platforms, and slower devices like the Switch also have very little trouble with it, which means they can render larger scenes than I initially anticipated.</p>
