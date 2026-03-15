@@ -3,7 +3,18 @@ import subprocess
 from pathlib import Path
 
 EXTENSIONS = {".c", ".cpp", ".h", ".py"}
+EXCLUDED_DIRS = {
+    ".git",
+    ".vs",
+    "lib",
+    "include",
+    "x64",
+}
 
+
+def is_excluded(path):
+    p = Path(path)
+    return any(part in EXCLUDED_DIRS for part in p.parts)
 
 def get_repo_root(path):
     result = subprocess.run(
@@ -52,7 +63,6 @@ def main():
     commit = sys.argv[2]
 
     repo_root = get_repo_root(repo_path)
-    relative_dir = repo_path.relative_to(repo_root)
 
     files = get_files_at_commit(repo_root, commit)
 
@@ -62,13 +72,12 @@ def main():
     for f in files:
         p = Path(f)
 
-        print(p)
-
-        # restrict to the requested directory
-        if relative_dir not in p.parents and p != relative_dir:
+        if is_excluded(p):
             continue
 
         if p.suffix.lower() in EXTENSIONS:
+            print(f"Scanning {p}")
+
             content = get_file_content(repo_root, commit, f)
             line_count += len(content.splitlines())
             file_count += 1
