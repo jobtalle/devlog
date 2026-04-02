@@ -1,7 +1,7 @@
 <h2>Time & threads</h2>
 <p>At the start of this month, I've fixed a large number of bugs that have been on my radar for a while, and I've restructured some systems to make them simpler and more robust.</p>
 <p>For a while, the <dfn>game loop</dfn> wasn't implemented very nicely. The game loop is the code that makes sure the game produces sixty frames per second (or whatever your monitor supports), while also updating the game at a constant rate. This can be a challenge, because both these frequencies can vary wildly on different systems, and motion across frames still needs to look smooth.</p>
-<p>Koi farm 2 uses multithreading in many ways. Modern devices have processors with many cores, and it'd be a shame if the game lags because it tries to do everything on one core while the others are idle. The game uses several threads:</p>
+<p>Koi farm 2 uses multithreading in many ways. Modern devices have processors with many cores, and it'd be a shame if the game lags because it tries to do everything on one core while the others are idle, which is a common performance bottleneck for modern games. The game runs on three thread categories:</p>
 <figure>
     <img src="threads.webp" alt="Threads">
     <figcaption>Threads</figcaption>
@@ -9,7 +9,8 @@
 <ol>
     <li>The update thread runs at a constant rate, regardless of the machine it runs on. This thread updates the game state, which mostly means all moving objects in the world.</li>
     <li>The render thread runs at whatever refresh rate the screen has. It's 60Hz on my monitors, but refresh rates can be much higher nowadays, and if you crank the graphics settings all the way up you may get slower irregular frame rates as well.</li>
-    <li>Procedural content is always generated on separate low priority threads, since this work is not time-critical. I'm using several threads for these things, so koi models, koi patterns and plants can all generate at the same time without interrupting the main threads.</li>
+    <li>Procedural content is always generated on separate low priority threads, since this work is very slow but not time-critical. We can wait for it, but it shouldn't interfere with gameplay. I'm using several threads for these things, so koi models, koi patterns and plants can all generate at the same time without interrupting the main threads or each other.</li>
+    <li>The audio engine runs on its own thread as well to prevent audio stutters.</li>
 </ol>
 <p>The image shows thread activity. Left is the most recent work, this shifts to the right as time progresses.</p>
 <ul>
@@ -17,15 +18,15 @@
     <li>Immediately after each update, a red bar can be seen, which sends the updated state to the GPU for rendering.</li>
     <li>On the second line, the render thread can be seen. Green bars show when the game tells the GPU what to render.</li>
 </ul>
-<p>Updates and rendering don't interfere with each other. This is great for performance. Imagine you have thousands of koi in the world, but your refresh rate is much higher than the games update rate (which is 41Hz at the moment). In that case, an update can take several frames before synchronizing and moving on to the next one. In other words, the update thread can use almost 100% of a CPU core for game updating before things start to slow down, and so can rendering.</p>
+<p>Updates and rendering don't interfere with each other. This is great for performance. Imagine you have thousands of koi in the world, but your refresh rate is much higher than the games update rate (which is 41Hz at the moment). In that case, an update can take several frames before synchronizing and moving on to the next one. By running updates and rendering on different threads, your framerate can still be high while either thread can use 100% of a CPU core before things start to slow down, and neither are slowed down by background work like procedural generation.</p>
 <figure>
     <img src="plots.webp" alt="Frame timing">
     <figcaption>Frame timing</figcaption>
 </figure>
-<p>The only exception is synchronization (the red bars), which need to happen <em>after</em> every update, but <em>never</em> while a frame is still rendering, because it could overwrite data that's currently being sent to the GPU. After every frame, the update thread waits until no frame is rendering, it blocks the render thread temporarily while synchronizing, after which both threads may continue.</p>
-<p>The second image shows plots that highlight another problem the game loop needs to tackle: time measurements and frequency measurements are inherently inaccurate. The render thread interpolates between updates: a koi moves from position A to position B between two updates, and the frames between the updates interpolate from A to B. At high refresh rates, there may be many frames between every set of updates. The interpolation between these updates should progress smoothly.</p>
-<p>The second plot in the image however shows the duration of each frame that I measure, and it's not a smooth line. On some other GPUs, it's even rougher. If I interpolate according to those frame times, motion becomes slightly choppy. If I take the rolling median of frame duration, it will stabilize around the actual monitor refresh rate. This is a number I can never get directly, but I can still find out what it is by keeping plenty of measurements and observing them. The third plot shows the actual <em>interpolation step size</em> between frames, which is now very flat, as it should be.</p>
-<p>The small spike in interpolation step size can be explained: sometimes the render thread notices that it runs slightly too early, it wants to interpolate towards a frame that doesn't exist yet. In that case, it waits for the next synchronization before rendering, which adds a small amount of time to the interpolation step.</p>
+<p>The only time the main threads meet is during synchronization (the red bars), which need to happen <em>after</em> every update, but <em>never</em> while a frame is still rendering, because it could overwrite data that's currently being sent to the GPU. After every update, the update thread waits until no frame is rendering, it blocks the render thread temporarily while synchronizing, after which both threads may continue.</p>
+<p>The second image shows plots that highlight another problem the game loop needs to tackle: time measurements and frequency measurements are inherently inaccurate. The GPU is a separate piece of hardware from the CPU, and while I can time things very accurately on the CPU, the GPU is doing its own thing, and it's not telling me precisely what's going on. The render thread interpolates between updates: a koi moves from position A to position B between two updates, and the frames between the updates interpolate from A to B. At high refresh rates, there may be many frames between every set of updates. The interpolation between these updates should progress smoothly.</p>
+<p>The second plot in the image however shows the duration of each frame that I measure, and it's not a smooth line. On some GPUs, it's even rougher. If I interpolate according to those frame times, motion becomes choppy. If I take the rolling median of frame duration, it will stabilize around the actual monitor refresh rate. This is a number I can never get directly, but I can still find out what it is by keeping plenty of measurements and observing them. The third plot shows the actual <em>interpolation step size</em> between frames, which is now very flat, as it should be.</p>
+<p>The small spike in interpolation step size can be explained: sometimes the render thread predicts that it's interpolating between states A and B, while state C is already synchronized. I'm only storing two states, so that means it needs to step slightly ahead to interpolate between states B and C instead.</p>
 <figure>
     <img src="cards.webp" alt="Cards">
     <figcaption>Cards</figcaption>
