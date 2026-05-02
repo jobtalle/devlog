@@ -1,0 +1,45 @@
+<h2>Cards and crisp edges</h2>
+<p>Everything that can be collected in the game has two forms: it can exist in the game world, or it can exist as a collectible trading card. If something can be turned into a trading card, it can also be turned into an object in the game world again.</p>
+<p>This mechanic is very important for Koi Farm. The original game had koi cards, but there were some issues with them that became obvious when people started playing the game:</p>
+<ul>
+    <li>Storage was too limited. The game unlocked a little bit of storage whenever an achievement was completed, but it was never enough. This caused players to use koi codes to store their koi as images on their computer. That feature was really meant for online sharing, not for organizing your own collection, and I feel like the lack of card storage made collecting more cumbersome than it should have been.</li>
+    <li>The system wasn't built to scale. Animations on the cards were limited and not performant enough.</li>
+    <li>The amount of information that fits on a card was limited, so not everything was on it. Things like fin types and koi shapes aren't on it at all, and two decimals weren't enough to satisfy some players.</li>
+</ul>
+<p>The first thing I needed to address was storage. Just like koi farm one, there are two main places where cards exist:</p>
+<ol>
+    <li>The card hand, which contains the cards that were just created from objects in the world, or cards that may be turned into world objects soon. These are shown at the bottom of the screen, and they're always visible.</li>
+    <li>Card storage, which will be unlimited. Players can organize cards with nested folders and custom names or color codes. The card storage interface is usually hidden but can be opened quickly at any time during gameplay to move cards from the hand into storage or vice versa.</li>
+</ol>
+<figure>
+    <img src="concepts.webp" alt="Early concepts" />
+    <figcaption>Early concepts</figcaption>
+</figure>
+<p>Besides these two systems, cards can also be inspected closer or compared to other cards (the latter should help a lot with crossbreeding for certain properties). When a card is inspected, more information can be shown about the koi (or object) in that card. I'm planning to add a DNA viewer and a family tree viewer that can be shown when a card is being inspected.</p>
+<figure>
+    <video autoplay loop muted playsinline width="500px">
+        <source src="cards.webm" type="video/webm">
+    </video>
+    <figcaption>The card hand</figcaption>
+</figure>
+<p>The card hand in Koi Farm 1 fits fewer than ten cards, and that may be too few for Koi Farm 2 because there will be more cards in general. The scene can contain more koi in multiple ponds, and plants and other objects can also be turned into cards. To increase capacity without making cards overlap so much they occlude each other's details, I've created a small stack of cards under the leftmost card. The player can scroll or swipe on the card hand. When swiping away from the stack, the rightmost cards shift to the bottom of the stack while cards from the top of the stack rotate into the card hand. This stack only shows up when there are too many cards in the hand to display clearly, but it will allow the player to have a bit more room to manage collectibles in the game.</p>
+<p>The card rendering system is fully 3D. The cards have a very slight thickness, the picture frames will render in 3D (which gives nice effects when the card is rotated), and I can add foil or holographic effects to rare cards. I've also made the system such that cards can bend, but I haven't used that yet.</p>
+<p>I've now added the first interface elements. Animating them and making them feel responsive enough can be tricky. The game updates at about 40Hz, while the frame rate and the cursor update at a higher rate. This can make cards feel "heavy". I was able to improve this by giving some feedback, like hover effects, on the render thread, while still moving elements on the update thread. Using nice animation curves also goes a long way.</p>
+<figure>
+    <img src="msaa1.webp" alt="MSAA under water" />
+    <figcaption>MSAA under water</figcaption>
+</figure>
+<p>Until now, there was no <dfn>antialiasing</dfn> in the game, which means that edges weren't soft but pixelated. The image on the right shows how this looked in the first frame. The second frame shows <dfn>2xMSAA</dfn> and the third frame shows <dfn>4xMSAA</dfn>, edges are softer here. That's because every pixel doesn't correspond to exactly one object; instead, every pixel averages 2 or 4 different positions within that pixel.</p>
+<p>There are other antialiasing techniques  besides MSAA, but in my opinion, MSAA is so much better that I don't want to use the others. The downside of MSAA is that it requires more VRAM and processing power, and in my case, that it needs to be applied thrice:</p>
+<ol>
+    <li>First on the underwater scene,</li>
+    <li>then on the scene above water,</li>
+    <li>and finally on the interface.</li>
+</ol>
+<p>This can be a bit much on some devices, so I've made these settings configurable. The underwater scene is distorted by the waves, so I can get away with a lower number of samples there, making antialiasing underwater rather cheap. I don't have that many objects above water yet, so it remains to be seen how much antialiasing is required there. For the interface, it feels like more antialiasing is important. Pixelated edges on cards look very bad, so I will only turn that off on the lowest settings.</p>
+<figure>
+    <img src="tonemapping.webp" alt="Tonemapping" />
+    <figcaption>Tonemapping</figcaption>
+</figure>
+<p>I've also changed the amount of detail in the games render targets, which means there's more information about lighting per pixel. That means I can now do things like <dfn>tonemapping</dfn>, which means fine-tuning the way colors look. I can change contrast, darkness, exposure and other things to make the colors look strong instead of faded. Games often change the way colors are interpreted based on the average lighting on the scene. You may notice that some games take some time to adjust to entering brightly lit or dark areas. This means the tonemapping parameters are adjusting to a lower or higher amount of light. At night, tonemapping can help shift colors more towards blues while raising the overall brightness to prevent the scene from becoming completely black.</p>
+<p>Another benefit of using higher resolution colors is that I can now support <dfn>HDR</dfn> monitors which can display a wider range of colors. Unfortunately, I don't have such a monitor at the moment, so I can only start testing this after I buy one. Finally, the extra color information will be helpful to add bloom effects to very brightly lit areas.</p>
