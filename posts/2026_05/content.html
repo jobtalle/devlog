@@ -11,8 +11,8 @@
 </figure>
 <p>Every time I encounter a problem that seems super suitable for hardware raytracing, it turns out there are better solutions that also happen to work on older computers. The raytracing problem in this case is quite simple: rays only need to refract through a medium once. I've created a system that simulates a large (but relatively low) number of rays that don't end up on the surface as a dot, but rather as an ellipse that's deformed depending on the way the light refracts. Concentrated beams will produce smaller brighter ellipses, while diverging beams will produce larger dimmer ellipses.</p>
 <figure>
-    <img src="splatCount.gif" alt="Different numbers of plats">
-    <figcaption>Different numbers of plats</figcaption>
+    <img src="splatCount.gif" alt="Different numbers of splats">
+    <figcaption>Different numbers of splats</figcaption>
 </figure>
 <p>These ellipses are rendered as <dfn>splats</dfn> using a technique called <dfn>gaussian splatting</dfn>, which blends together overlapping flares that together make up the final image. This image, in this case, acts as a light filter for everything that's underwater. The filter either dims light or amplifies it depending on the way light is focused by the waves.</p>
 <p>To reduce the number of splats required to get a high quality filter image, I don't cast them from a square grid, but rather from a hexagonal grid. It's a bit more complicated to distribute rays this way, but it makes the gaps between the landed ellipses smaller.</p>
