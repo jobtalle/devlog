@@ -14,7 +14,7 @@
     <img src="splatCount.gif" alt="Different numbers of plats">
     <figcaption>Different numbers of plats</figcaption>
 </figure>
-<p>These ellipses are rendered as <dfn>splats</dfn>, which are overlapping flares that together make up the final image. This image, in this case, acts as a light filter for everything that's underwater. The filter either dims light or amplifies it depending on the way light is focused by the waves.</p>
+<p>These ellipses are rendered as <dfn>splats</dfn> using a technique called <dfn>gaussian splatting</dfn>, which blends together overlapping flares that together make up the final image. This image, in this case, acts as a light filter for everything that's underwater. The filter either dims light or amplifies it depending on the way light is focused by the waves.</p>
 <p>To reduce the number of splats required to get a high quality filter image, I don't cast them from a square grid, but rather from a hexagonal grid. It's a bit more complicated to distribute rays this way, but it makes the gaps between the landed ellipses smaller.</p>
 <p>The animated image of a typical caustics pattern shows the effect of increasing the number of splats. At low splat counts, the ellipses become visible. The rotating and scaling ellipses try to make up for the lack of detail they can produce with pretty good results, but increasing the number of splats makes the ellipses "disappear" in the pattern they create.</p>
 <figure>
