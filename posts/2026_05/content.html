@@ -1,17 +1,22 @@
 <h2>Caustics & card dioramas</h2>
-<p>Most time in the game, players will be looking at water, where the koi live. It's important that things look nice underwater, so I've added another improvement: an effect known as <dfn>caustics</dfn>. When sunlight gets refracted by the water surface, light rays change direction. Some will end up together and create light bands, while areas where light rays diverge will receive less light. Especially the bands of concentrated light can have very nice interactions with materials like shiny scales.</p>
 <figure>
     <img src="glass.webp" alt="Caustics" />
     <figcaption>Caustics</figcaption>
 </figure>
+<p>Most time in the game, players will be looking at water, where the koi live. It's important that things look nice underwater, so I've added another improvement: an effect known as <dfn>caustics</dfn>. When sunlight gets refracted by the water surface, light rays change direction. Some will end up together and create light bands, while areas where light rays diverge will receive less light. Especially the bands of concentrated light can have very nice interactions with materials like shiny scales.</p>
 <p>The problem with caustics is that the way to render them is basically to calculate the trajectory of a large number of rays of light. Some rays end up in the same place, and they need to add up to get the final value for light exposure. Raytracing takes a lot of GPU power and I want to do many other things, so I've had to come up with a way to render caustics without stressing the hardware too much.</p>
-<p>Every time I encounter a problem that seems super suitable for hardware raytracing, it turns out there are better solutions that also happen to work on older computers. The raytracing problem in this case is quite simple: rays only need to refract through a medium once. I've created a system that simulates a large (but relatively low) number of rays that don't end up on the surface as a dot, but rather as an ellipse. Concentrated beams will produce smaller brighter ellipses, while diverging beams will produce larger dimmer ellipses.</p>
 <figure>
     <img src="splats.webp" alt="Positioning caustics splats" />
     <figcaption>Positioning caustics splats</figcaption>
 </figure>
+<p>Every time I encounter a problem that seems super suitable for hardware raytracing, it turns out there are better solutions that also happen to work on older computers. The raytracing problem in this case is quite simple: rays only need to refract through a medium once. I've created a system that simulates a large (but relatively low) number of rays that don't end up on the surface as a dot, but rather as an ellipse that's deformed depending on the way the light refracts. Concentrated beams will produce smaller brighter ellipses, while diverging beams will produce larger dimmer ellipses.</p>
+<figure>
+    <img src="splatCount.gif" alt="Different numbers of plats">
+    <figcaption>Different numbers of plats</figcaption>
+</figure>
 <p>These ellipses are rendered as <dfn>splats</dfn>, which are overlapping flares that together make up the final image. This image, in this case, acts as a light filter for everything that's underwater. The filter either dims light or amplifies it depending on the way light is focused by the waves.</p>
 <p>To reduce the number of splats required to get a high quality filter image, I don't cast them from a square grid, but rather from a hexagonal grid. It's a bit more complicated to distribute rays this way, but it makes the gaps between the landed ellipses smaller.</p>
+<p>The animated image of a typical caustics pattern shows the effect of increasing the number of splats. At low splat counts, the ellipses become visible. The rotating and scaling ellipses try to make up for the lack of detail they can produce with pretty good results, but increasing the number of splats makes the ellipses "disappear" in the pattern they create.</p>
 <figure>
     <video autoplay loop muted playsinline width="400px">
         <source src="caustics.mp4" type="video/mp4">
