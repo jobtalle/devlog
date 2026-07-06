@@ -1,0 +1,11 @@
+<h2>Eggs</h2>
+<figure>
+    <video autoplay loop muted playsinline width="400px">
+        <source src="eggs.mp4" type="video/mp4">
+    </video>
+    <figcaption>Caustics in motion</figcaption>
+</figure>
+<p>I'm closing the game loop this month by adding eggs to the game, so koi can live their full life cycle. Besides koi and plants, eggs will also be collectible as cards, so they can be given to or received from other players.</p>
+<p>As opposed to Koi Farm 1, koi in Koi Farm 2 will have more offspring at a time. This is now possible because there can be many more ponds and koi, and it will be easier to move them in bulk. The video on the right shows a bunch of eggs, which are sticky spheres that stay together until they hatch. I want to animate the tiny koi inside the egg eventually, but for now there are just two spheres representing eyes. Eggs will hatch shortly after they spawn, but there will be enough time to move them to a hatching pond if the player wants that. That could be a useful breeding technique, but there can be many more.</p>
+<p>To find out in which ways players play the game, we're building a version of the game that records player actions. We've already done this for Koi Farm 1, and we'll organize playtesting sessions to establish a baseline which we can compare to Koi Farm 2 playtests soon after. This will help me to design the game in such a way that it can be played in a variety of ways, without forcing the player one way or another.</p>
+<p>The shaders and GPU algorithms in the Koi Farm 2 engine are becoming more complex, and the Switch 1 can't keep up with all the shader features the PC version uses. This created a situation where I needed to make multiple mostly equal implementations, one for old devices and one for newer ones. That's not easy to maintain or debug, so I've figured out a better way to do this: the engine builds a shader version for each permutation of available GPU features, stores all different versions and loads the one that's applicable for the platform the game runs on; I only have to write one shader with feature checks inside the shader code. I can't make a version for each possible set of available GPU features, but the engine can, so it's now much easier to keep the game compatible with a much broader range of devices.</p>
