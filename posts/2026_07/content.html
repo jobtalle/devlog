@@ -13,7 +13,7 @@
     <figcaption>Reflections</figcaption>
 </figure>
 <p>Another thing I've added are reflections. The water now reflects anything above it. There are several methods to render these, but I've gone for one that's rarely used: <dfn>screen space planar reflections</dfn>. As opposed to rather expensive tricks that use <dfn>ray marching</dfn> or even <dfn>raytracing</dfn>, Koi Farm 2 only has one reflecting plane (the water), so I can make some assumptions other methods can't. Every pixel that's not water calculates where it would reflect in the water plane, and if that reflected pixel is actually a water pixel, it writes the location of the source pixel to a buffer. The water shader then later reads that buffer to find out which pixels reflected themselves there, and distorts the reflection depending on the wave pattern.</p>
-<p>One disadvantage of this method is that when waves hide the shore, the shore doesn't reflect itself. I've had to <dfn>clamp</dfn> reflections by both warping the reflection plane depending on the wave height and by rendering extra shore pixels into the reflection buffer, to make sure no gaps appear.</p>
+<p>One disadvantage of this method is that when waves hide the shore, the shore doesn't reflect itself. I've had to <dfn>clamp</dfn> reflections by both warping the reflection plane depending on the wave height and by rendering extra shore pixels into the reflection buffer, to make sure no gaps appear. The comparison shows gaps on the right, and the gap closing algorithm applied on the left.</p>
 <figure>
     <img src="shore.gif" alt="Shore edge shading">
     <figcaption>Shore edge shading</figcaption>
