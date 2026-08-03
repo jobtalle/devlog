@@ -7,13 +7,19 @@
 </figure>
 <p>Since the concept artist has now joined the team, we need a way to test and align designs with the actual game. The game is full of colors and parameters that are hidden all over the place, so I decided to make a tool that finds them, groups them together and makes them editable without diving into the code. The video shows how the color of the sand underwater can easily be changed.</p>
 <p>The color isn't just updated in the code somewhere, the development build of the game that's running next to the tool also detects that a change has occurred, and reloads the relevant resources to immediately display the result. This is often called <dfn>hot reloading</dfn>. This changes the process of fine-tuning parameters from awkwardly trying to process feedback from the concept artist and rebuilding the game many times to just letting the concept artist play with things until they are perfect.</p>
-<p>Another thing that supports hot reloading is audio. The first audio events have now been implemented. I trigger sound events and set the relevant parameters on my end, and then I send a development build to the sound designer which connects to the audio engine so she can adjust the audio events until they work well with the game.</p>
+<p>Another thing that supports hot reloading is audio. The first audio events have now been implemented. I trigger sound events and set the relevant parameters on my end, and then I send a development build to the sound designer which connects to the audio engine, so she can adjust the audio events until they work well with the game.</p>
 <figure>
-    <img src="reflectionClamping.webp" alt="Reflection clamping">
-    <figcaption>Reflection clamping</figcaption>
+    <img src="reflections.webp" alt="Reflections">
+    <figcaption>Reflections</figcaption>
 </figure>
 <p>Another thing I've added are reflections. The water now reflects anything above it. There are several methods to render these, but I've gone for one that's rarely used: <dfn>screen space planar reflections</dfn>. As opposed to rather expensive tricks that use <dfn>ray marching</dfn> or even <dfn>raytracing</dfn>, Koi Farm 2 only has one reflecting plane (the water), so I can make some assumptions other methods can't. Every pixel that's not water calculates where it would reflect in the water plane, and if that reflected pixel is actually a water pixel, it writes the location of the source pixel to a buffer. The water shader then later reads that buffer to find out which pixels reflected themselves there, and distorts the reflection depending on the wave pattern.</p>
 <p>One disadvantage of this method is that when waves hide the shore, the shore doesn't reflect itself. I've had to <dfn>clamp</dfn> reflections by both warping the reflection plane depending on the wave height and by rendering extra shore pixels into the reflection buffer, to make sure no gaps appear.</p>
+<figure>
+    <img src="shore.gif" alt="Shore edge shading">
+    <figcaption>Shore edge shading</figcaption>
+</figure>
+<p>It's important to let the shore and water surface "touch" in a way. I'm doing this by making the shore look wet where the water touches it, but that's not enough. Most games render some sort of animated bright outline where water hits objects, and I've often used this trick myself. Koi Farm 1 has it as well. Still, I don't think it's good enough for Koi Farm 2. It's very stylized and simply hides the intersection.</p>
+<p>After carefully looking at water I noticed the highlight or bright line that's often rendered when water intersects objects is a stand-in for a real effect: water is somewhat "sticky" and curls up towards things it touches. This curling effect then reflects more light than the water surface that lies in the shade of the shore, suggesting an outline. The comparison on the right shows this effect: it's subtle but important, especially with reflections, because it creates a break in the reflected image as well. There's now a good transition between the water surface and the shore (and soon rocks), and it's not just a bright outline that hides objects underwater as a side effect.</p>
 <figure>
     <img src="imageMemory.webp" alt="Image memory">
     <figcaption>Image memory</figcaption>
