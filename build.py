@@ -24,8 +24,8 @@ months = [
     "October",
     "November",
     "December"]
-regex_title = re.compile("(\d*)_0?(\d*)")
-regex_header = re.compile("<h2[^>]*>(.*?)</h2>")
+regex_title = re.compile(r"(\d*)_0?(\d*)")
+regex_header = re.compile(r"<h2[^>]*>(.*?)</h2>")
 template = open("template/template.html", "r").read()
 template_index = open("template/template_index.html", "r").read()
 template_rss = open("template/template_rss.xml", "r").read()

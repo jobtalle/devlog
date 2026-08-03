@@ -1,0 +1,21 @@
+<h2>Hot reloading</h2>
+<figure>
+    <video autoplay loop muted playsinline width="500px">
+        <source src="hot.mp4" type="video/mp4">
+    </video>
+    <figcaption>Hot reloading</figcaption>
+</figure>
+<p>Since the concept artist has now joined the team, we need a way to test and align designs with the actual game. The game is full of colors and parameters that are hidden all over the place, so I decided to make a tool that finds them, groups them together and makes them editable without diving into the code. The video shows how the color of the sand underwater can easily be changed.</p>
+<p>The color doesn't just change, the game that's running next to the tool also detects that a change has occurred, and reloads the relevant resources to immediately display the result. This is often called <dfn>hot reloading</dfn>. This changes the process of fine-tuning parameters from awkwardly trying to process feedback from the concept artist and rebuilding the game many times to just letting the concept artist play with things until they are perfect.</p>
+<p>Another thing that supports hot reloading is audio. The first audio events have now been implemented. I trigger sound events and set the relevant parameters on my end, then I can make a development build for the audio designer, and the sound engine editor then connects to the running game so everything can be adjusted until it sound good.</p>
+<figure>
+    <img src="reflectionClamping.webp" alt="Reflection clamping">
+    <figcaption>Reflection clamping</figcaption>
+</figure>
+<p>Another thing I've added are reflections. The water now reflects anything above it. There are several methods to render these, but I've gone for one that's rarely used: <dfn>screen space planar reflections</dfn>. As opposed to rather expensive tricks that use <dfn>ray marching</dfn> or even <dfn>raytracing</dfn>, Koi Farm 2 only has one reflecting plane (the water), so I can make some assumptions other methods can't. Every pixel that's not water calculates where it would reflect in the water plane, and if that reflected pixel is actually a water pixel, it writes the location of the source pixel to a buffer. The water shader then later reads that buffer to find out which pixels reflected themselves there, and distorts the reflection depending on the wave pattern.</p>
+<p>One disadvantage of this method is that when waves hide the shore, the shore doesn't reflect itself. I've had to <dfn>clamp</dfn> reflections by both warping the reflection plane depending on the wave height and by rendering extra shore pixels into the reflection buffer, to make sure no gaps appear.</p>
+<figure>
+    <img src="imageMemory.webp" alt="Image memory">
+    <figcaption>Image memory</figcaption>
+</figure>
+<p>Apart from hot reloading, I've added some other useful engine tools. One of them is a better memory profiler, which shows me exactly how much memory is allocated and where it's spent. Optional effects like reflections and refractions have an impact on the games memory usage, and these tools allow me to see what memory profiles are suitable for low-end devices. I hope RAM prices will cool down by the time Koi Farm 2 releases, but if not, the engine can run on a very low memory footprint. Of course this is always useful on consoles and mobile, and it will allow me to use RAM for nicer things, like increasing the koi and plant limits.</p>
